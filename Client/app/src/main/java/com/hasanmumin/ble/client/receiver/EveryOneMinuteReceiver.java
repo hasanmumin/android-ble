@@ -9,6 +9,8 @@ import com.hasanmumin.ble.client.ClientApplication;
 public class EveryOneMinuteReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        ClientApplication.getActivity().startScan();
+        if (!ClientApplication.getActivity().isConnected()) {
+            ClientApplication.getActivity().startScan();
+        }
     }
 }

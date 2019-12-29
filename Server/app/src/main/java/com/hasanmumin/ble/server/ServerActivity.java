@@ -102,15 +102,14 @@ public class ServerActivity extends AppCompatActivity {
     private void setupServer() {
         BluetoothGattService service = new BluetoothGattService(DEVICE_UUID_SERVICE, BluetoothGattService.SERVICE_TYPE_PRIMARY);
 
-        int properties = BluetoothGattCharacteristic.PROPERTY_WRITE | BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_NOTIFY;
         int permissions = BluetoothGattCharacteristic.PERMISSION_WRITE | BluetoothGattCharacteristic.PERMISSION_READ;
 
         BluetoothGattCharacteristic characteristicWrite = new BluetoothGattCharacteristic(DEVICE_UUID_CHAR_WRITE,
-                properties,
-                permissions);
+                BluetoothGattCharacteristic.PROPERTY_WRITE,
+                BluetoothGattCharacteristic.PERMISSION_WRITE);
 
         BluetoothGattCharacteristic characteristicNotify = new BluetoothGattCharacteristic(DEVICE_UUID_CHAR_NOTIFY,
-                properties,
+                BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_NOTIFY,
                 permissions);
         BluetoothGattDescriptor descriptorNotify = new BluetoothGattDescriptor(CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID,
                 permissions);
@@ -154,7 +153,7 @@ public class ServerActivity extends AppCompatActivity {
         @Override
         public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
             log("onCharacteristicReadRequest() %s ", device.getAddress());
-            mGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, null);
+            mGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
         }
 
         @Override
@@ -169,6 +168,20 @@ public class ServerActivity extends AppCompatActivity {
         @Override
         public void onNotificationSent(BluetoothDevice device, int status) {
             log("onNotificationSent " + status);
+        }
+
+        @Override
+        public void onDescriptorWriteRequest(BluetoothDevice device, int requestId, BluetoothGattDescriptor descriptor, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
+            if (responseNeeded) {
+                mGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value);
+            }
+            log("onDescriptorWriteRequest() %s ", device.getAddress());
+        }
+
+        @Override
+        public void onDescriptorReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattDescriptor descriptor) {
+            mGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, descriptor.getValue());
+            log("onDescriptorReadRequest() %s ", device.getAddress());
         }
     }
 }

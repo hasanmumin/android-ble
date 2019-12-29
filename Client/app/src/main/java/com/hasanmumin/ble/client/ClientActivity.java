@@ -137,7 +137,6 @@ public class ClientActivity extends AppCompatActivity implements BleManagerCallb
                     if (mClientManager.isConnected() && mClientManager.isReady()) {
                         mClientManager.send("alive");
                     }
-
                 });
             }
         }, 1000 * 10, 1000 * 30);

@@ -83,7 +83,7 @@ public class ClientManager extends BleManager<BleManagerCallbacks> {
     }
 
     public void send(String message) {
-        log("Notify: %s", message);
+        log("Sending message to server : %s", message);
         writeCharacteristic(mCharacteristicWrite, Data.from(message))
                 .with(mClientDataCallback).enqueue();
     }
